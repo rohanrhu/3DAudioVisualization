@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://cgkbsn4370m31"]
+
+[ext_resource type="Script" path="res://scenes/Speakers/Speakers.gd" id="1"]
+[ext_resource type="Shader" path="res://shaders/EQSurface.gdshader" id="2"]
+[ext_resource type="Texture2D" uid="uid://bwyqjr87ey1mc" path="res://assets/textures/surface.jpg" id="3_om6tb"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_s8x1p"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4ix4k"]
+render_priority = 0
+shader = ExtResource("2")
+shader_parameter/freqs_length = 16
+shader_parameter/image = ExtResource("3_om6tb")
+shader_parameter/lines_factor = 1.0
+shader_parameter/mode = 0
+shader_parameter/points_factor = 5.0
+
+[node name="Speakers" type="Node3D"]
+script = ExtResource("1")
+points_strength = 6.0
+lines_strength = 2.0
+steps = 50
+interpolation_delay = 80
+
+[node name="Box" type="Node3D" parent="."]
+
+[node name="Surface" type="MeshInstance3D" parent="Box"]
+transform = Transform3D(3.45095, 0, 0, 0, 3.45095, 0, 0, 0, 3.45095, 0, 0, 0)
+mesh = SubResource("TorusMesh_s8x1p")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("ShaderMaterial_4ix4k")

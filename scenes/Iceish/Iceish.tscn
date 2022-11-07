@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://cuk4lu74e6j2h"]
+
+[ext_resource type="Script" path="res://scenes/Iceish/Iceish.gd" id="1_4mfir"]
+[ext_resource type="Shader" path="res://shaders/EQSurface.gdshader" id="2_hxni1"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_2t0db"]
+subdivide_width = 32
+subdivide_depth = 32
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4prhm"]
+render_priority = 0
+shader = ExtResource("2_hxni1")
+shader_parameter/freqs_length = null
+shader_parameter/lines_factor = null
+shader_parameter/mode = null
+shader_parameter/points_factor = null
+
+[node name="Iceish" type="Node3D"]
+script = ExtResource("1_4mfir")
+
+[node name="Box" type="Node3D" parent="."]
+
+[node name="Surface" type="MeshInstance3D" parent="Box"]
+mesh = SubResource("PlaneMesh_2t0db")
+surface_material_override/0 = SubResource("ShaderMaterial_4prhm")

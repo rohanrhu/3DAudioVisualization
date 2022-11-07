@@ -1,0 +1,371 @@
+[gd_scene load_steps=13 format=3 uid="uid://bb1udbgtpjqyg"]
+
+[ext_resource type="Script" path="res://scenes/Main/Main.gd" id="1_nfi66"]
+[ext_resource type="AudioStream" uid="uid://cmj3oeomnv20x" path="res://assets/audio/Dubmood - Chicago Chiphop.mp3" id="2_gu20i"]
+[ext_resource type="Script" path="res://scenes/Main/Spectator.gd" id="3_gdywh"]
+[ext_resource type="PackedScene" uid="uid://cgkbsn4370m30" path="res://scenes/Circly/Circly.tscn" id="5_2tarx"]
+[ext_resource type="PackedScene" uid="uid://cgkbsn4370m31" path="res://scenes/Speakers/Speakers.tscn" id="5_pr1qh"]
+[ext_resource type="Texture2D" uid="uid://bwyqjr87ey1mc" path="res://assets/textures/surface.jpg" id="6_f4rmb"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1kokx"]
+sky_top_color = Color(1, 1, 1, 1)
+sky_horizon_color = Color(0.329412, 0.486275, 0.847059, 1)
+ground_bottom_color = Color(0.00392157, 0, 0.109804, 1)
+ground_horizon_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Sky" id="Sky_demv4"]
+sky_material = SubResource("ProceduralSkyMaterial_1kokx")
+
+[sub_resource type="Environment" id="Environment_gqo1p"]
+background_mode = 2
+sky = SubResource("Sky_demv4")
+ambient_light_source = 2
+ambient_light_color = Color(0.843137, 0.745098, 0.807843, 1)
+ambient_light_energy = 16.0
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 1.62
+glow_strength = 1.57
+glow_bloom = 0.09
+fog_enabled = true
+fog_light_color = Color(0, 0.360784, 0.835294, 1)
+fog_density = 0.0
+fog_aerial_perspective = 0.404
+fog_sky_affect = 0.284
+fog_height = 34.91
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_vn7dj"]
+size = Vector2(20, 20)
+subdivide_width = 32
+subdivide_depth = 32
+
+[sub_resource type="Shader" id="Shader_anfod"]
+code = "shader_type spatial;
+
+uniform sampler2D image;
+uniform float paleness = 0.1;
+
+void fragment() {
+	vec4 txt = texture(image, UV);
+	
+	ALBEDO = txt.rgb;
+	ALPHA = 1.0 / (3.0 - clamp(txt.r + txt.g + txt.b, 0.0, 1.0));
+	if (ALPHA < 0.36) {
+		ALPHA = 0.0;
+	}
+	ALPHA *= paleness;
+    ROUGHNESS = 1.0;
+    SPECULAR = 0.0;
+    METALLIC = 0.0;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xfk53"]
+render_priority = 0
+shader = SubResource("Shader_anfod")
+shader_parameter/image = ExtResource("6_f4rmb")
+shader_parameter/paleness = 0.025
+
+[node name="Main" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0139829, 0.0730224, -0.0396106)
+script = ExtResource("1_nfi66")
+interpolation_delay = 300
+max_distance = 45
+min_distance = 35
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_gu20i")
+
+[node name="Spectator" type="CharacterBody3D" parent="."]
+script = ExtResource("3_gdywh")
+autospec_duration = 10000
+autospec_distance = 25
+autospec_height = 10
+
+[node name="Camera" type="Camera3D" parent="Spectator"]
+transform = Transform3D(0.999553, 0.00315879, -0.0297329, 0, 0.994404, 0.105644, 0.0299003, -0.105597, 0.993959, -1.67779, 11.6649, 16.0434)
+
+[node name="OmniLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.595005, 1.5832, 0.241735)
+light_energy = 0.87
+omni_range = 2.481
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_gqo1p")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MusicSlider" type="HSlider" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -44.0
+offset_right = -21.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="SliderTimer" type="Timer" parent="."]
+
+[node name="Circly" parent="." instance=ExtResource("5_2tarx")]
+transform = Transform3D(-5.80927, -8.5921e-07, -10.6303, 4.83768, 9.80675, -4.8301, 6.20064, -7.65113, -6.19093, 9.74238e-05, 17.4104, -0.00167346)
+strength = 3.0
+steps = 500
+interpolation_delay = 80
+
+[node name="Speakers" parent="." instance=ExtResource("5_pr1qh")]
+transform = Transform3D(4.25114, 0, 0, 0, 4.25114, 0, 0, 0, 4.25114, 0, 0, 0)
+points_strength = 3.0
+steps = 100
+
+[node name="Ground" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.514306, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.2624, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.2624, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.655602, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.1211, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -39.8692, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.0924, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -40.0105, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.2337, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -39.8692, 0, -20.6298)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.0924, 0, -20.6298)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -40.0105, 0, -0.886087)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.2337, 0, -0.886087)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -39.8692, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.0924, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -40.0105, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D17" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.2337, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D18" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.398234, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D19" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.3785, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D20" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.53953, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D21" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.2372, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D22" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.398234, 0, -20.1798)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D23" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.3785, 0, -20.1798)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D25" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.2372, 0, -0.436118)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D24" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.2875, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D26" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.1462, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D27" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.4036, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D28" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.2623, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D29" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.4036, 0, -20.1798)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D30" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.2623, 0, -0.436118)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D31" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.2578, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D32" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.1165, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D37" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -0.655602, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D38" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 19.1211, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D39" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -40.0105, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D43" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.5557, 0, 19.1547)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D44" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.697, 0, 38.8984)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D45" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.5557, 0, -20.6298)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D46" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.697, 0, -0.886087)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D47" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.5557, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D48" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.697, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D49" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(-0.999954, 0, 0.00959921, 0, 1, 0, -0.00959921, 0, -0.999954, -59.697, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D40" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, -20.2337, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D41" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 39.1462, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D42" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.1165, 0, 58.4885)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D33" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.3739, 0, -60.5821)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D34" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.2326, 0, -40.8384)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D35" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.3739, 0, -20.1798)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[node name="MeshInstance3D36" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(0.00677176, 0, -0.999977, 0, 1, 0, 0.999977, 0, 0.00677176, 59.2326, 0, -0.436118)
+mesh = SubResource("PlaneMesh_vn7dj")
+surface_material_override/0 = SubResource("ShaderMaterial_xfk53")
+
+[connection signal="value_changed" from="CanvasLayer/MusicSlider" to="." method="_on_MusicSlider_value_changed"]
+[connection signal="timeout" from="SliderTimer" to="." method="_on_SliderTimer_timeout"]

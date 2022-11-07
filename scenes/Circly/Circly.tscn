@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3 uid="uid://cgkbsn4370m30"]
+
+[ext_resource type="Script" path="res://scenes/Circly/Circly.gd" id="1_r15ky"]
+[ext_resource type="Texture2D" uid="uid://bwyqjr87ey1mc" path="res://assets/textures/surface.jpg" id="3_om6tb"]
+[ext_resource type="Shader" path="res://shaders/EQSphere.gdshader" id="4_ohro4"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_moja8"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2phtq"]
+render_priority = 0
+shader = ExtResource("4_ohro4")
+shader_parameter/freqs_length = null
+shader_parameter/strength = 3.0
+shader_parameter/surface = ExtResource("3_om6tb")
+
+[node name="Circly" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.74238e-05, 0.00241232, -0.00167346)
+script = ExtResource("1_r15ky")
+
+[node name="Sphere" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_moja8")
+surface_material_override/0 = SubResource("ShaderMaterial_2phtq")
+metadata/_edit_lock_ = true
